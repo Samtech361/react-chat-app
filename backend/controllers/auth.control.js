@@ -1,6 +1,6 @@
 export const signup = (req, res) => {
   try {
-    const { fulllname, username, password, confirmPassword, gender } = req.body;
+    const { fullname, username, password, confirmPassword, gender } = req.body;
   } catch (error) {}
 };
 
