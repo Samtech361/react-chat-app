@@ -1,5 +1,6 @@
 import User from "../models/users.model.js";
 import bcrypt from "bcryptjs";
+import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
@@ -32,6 +33,7 @@ export const signup = async (req, res) => {
     });
 
     if (newUser) {
+      generateTokenAndSetCookie(newUser._id, res); // generate token and set cookie
       await newUser.save(); //saves object to the DB
 
       res.status(201).json({
