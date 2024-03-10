@@ -10,6 +10,7 @@ dotenv.config();
 let PORT = process.env.PORT || 5000;
 
 // middleware
+app.use(express.json()); //to parse json payload from req.body
 app.use("/api/auth", authRoutes); //authentication routes
 // user routes
 //message routes
