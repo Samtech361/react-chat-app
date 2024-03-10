@@ -4,13 +4,13 @@ import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
-    const { fullName, userName, password, confirmPassword, gender } = req.body;
+    const { fullName, username, password, confirmPassword, gender } = req.body;
 
     if (password !== confirmPassword) {
       return res.status(400).json({ error: "passwords do not match" });
     }
 
-    const user = User.findOne({ userName }); //checks if username already exists
+    const user = User.findOne({ username }); //checks if username already exists
 
     if (user) {
       return res.status(400).json({ error: "username already exists" });
@@ -27,7 +27,7 @@ export const signup = async (req, res) => {
     //creates a new user object
     const newUser = new user({
       fullName,
-      userName,
+      username,
       password: hashedPassword,
       gender: gender === male ? boyProfilePic : girlProfilePic,
     });
@@ -39,7 +39,7 @@ export const signup = async (req, res) => {
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
-        userName: newUser.userName,
+        userName: newUser.username,
         profilePic: newUser.profilePic,
       });
     } else {
@@ -51,10 +51,39 @@ export const signup = async (req, res) => {
   }
 };
 
-export const login = (req, res) => {
-  res.send("login page");
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username }); // checks if user already exists
+    const isPasswordcorrect = await bcrypt.compare(
+      password,
+      user?.password || ""
+    ); // checks if password is correct
+
+    if (!user && !isPasswordcorrect) {
+      res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    generateTokenAndSetCookie(user._id, res);
+
+    res.status(200).json({
+      _id: user._id,
+      fullNamename: user.fullName,
+      userName: user.username,
+      profilePicture: user.profilePic,
+    });
+  } catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
-export const logout = (req, res) => {
-  res.send("logout page");
+export const logout = async (req, res) => {
+  try {
+    res.cookie(jwt, "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in signup controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 };
